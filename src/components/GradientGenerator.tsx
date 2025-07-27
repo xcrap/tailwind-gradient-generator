@@ -201,11 +201,13 @@ export const GradientGenerator: React.FC = () => {
     
     switch (maskSettings.type) {
       case 'maskX':
-        return `mask-linear-${to} mask-linear-from-${to}%`;
+        // Horizontal masks only use one intensity value
+        return `mask-x mask-x-from-${to}%`;
       case 'maskY':
-        return `mask-linear-${to} mask-linear-from-${to}%`;
+        // Vertical masks only use one intensity value
+        return `mask-y mask-y-from-${to}%`;
       case 'maskCenter':
-        return `mask-radial-at-center mask-radial-from-${from}% mask-radial-to-${to}%`;
+        return `mask-radial mask-radial-from-${from}% mask-radial-to-${to}%`;
       default:
         return '';
     }
