@@ -174,6 +174,7 @@ const CarouselItem = React.forwardRef<
 	const { orientation } = useCarousel();
 
 	return (
+		// biome-ignore lint/a11y/useSemanticElements: WAI-ARIA carousel slides use group, not a form fieldset.
 		<div
 			ref={ref}
 			role="group"
@@ -248,10 +249,10 @@ const CarouselNext = React.forwardRef<
 CarouselNext.displayName = "CarouselNext";
 
 export {
-	type CarouselApi,
 	Carousel,
+	type CarouselApi,
 	CarouselContent,
 	CarouselItem,
-	CarouselPrevious,
 	CarouselNext,
+	CarouselPrevious,
 };

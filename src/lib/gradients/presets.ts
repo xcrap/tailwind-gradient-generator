@@ -1,0 +1,301 @@
+import { fieldDefaults } from "./field";
+import { createLayer } from "./model";
+import type { GradientField, GradientPreset } from "./types";
+
+const cobalt = [
+	"#070b16",
+	"#102148",
+	"#244b99",
+	"#4f86ce",
+	"#a0c7e9",
+	"#f0f7fa",
+];
+const amber = [
+	"#130c09",
+	"#3a1c0d",
+	"#8f4219",
+	"#cd7b35",
+	"#f2c68b",
+	"#fff1d7",
+];
+const rose = ["#1b101b", "#49233c", "#96546d", "#c88e9c", "#ead1cf", "#fff1e9"];
+const jade = ["#071612", "#103e36", "#286c5b", "#62a88a", "#b9d9b5", "#eff6dd"];
+const lilac = [
+	"#10101b",
+	"#32304b",
+	"#6b648d",
+	"#aaa3c4",
+	"#dad5e9",
+	"#f5f1fa",
+];
+const pearl = [
+	"#26303e",
+	"#657a8c",
+	"#98b2bc",
+	"#c7d4d4",
+	"#e8e6db",
+	"#fbf5e9",
+];
+function preset(
+	name: string,
+	category: string,
+	mode: GradientField["mode"],
+	palette: string[],
+	patch: Partial<GradientField> = {},
+	description = "",
+): GradientPreset {
+	const layer = {
+		...createLayer("radial"),
+		id: "legacy-preview",
+		color: palette[2],
+		color2: palette[4],
+		width: 240,
+		height: 240,
+		blur: 25,
+	};
+	return {
+		id: name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+		name,
+		category,
+		description:
+			description ||
+			`${name} — a softly moving ${category.toLowerCase()} study.`,
+		document: {
+			version: 1,
+			name,
+			background: palette[0],
+			grain: 9,
+			aspectRatio: "16:10",
+			layers: [layer],
+			field: { ...fieldDefaults(mode), palette: [...palette], ...patch },
+		},
+	};
+}
+export const PRESETS: GradientPreset[] = [
+	preset(
+		"Cobalt veil",
+		"Light sheets",
+		"beam",
+		cobalt,
+		{ angle: 24, softness: 66, curve: 36, detail: 31, y: 47 },
+		"A broad wash of blue light, falling gently into midnight.",
+	),
+	preset("Amber diffusion", "Light sheets", "beam", amber, {
+		angle: -18,
+		softness: 56,
+		curve: 52,
+		detail: 60,
+		seed: 9,
+		y: 43,
+	}),
+	preset("Rosewater", "Light sheets", "beam", rose, {
+		angle: 29,
+		softness: 77,
+		curve: 24,
+		detail: 24,
+		seed: 5,
+	}),
+	preset("Silver light", "Light sheets", "beam", pearl, {
+		angle: -30,
+		softness: 80,
+		curve: 19,
+		detail: 20,
+		y: 49,
+	}),
+	preset("Lavender dusk", "Light sheets", "beam", lilac, {
+		angle: 19,
+		softness: 66,
+		curve: 42,
+		detail: 51,
+		seed: 12,
+	}),
+	preset("Forest window", "Light sheets", "beam", jade, {
+		angle: 35,
+		softness: 66,
+		curve: 21,
+		detail: 40,
+		seed: 7,
+		y: 47,
+	}),
+	preset(
+		"Blue silk",
+		"Flow mesh",
+		"mesh",
+		["#07101c", "#203957", "#5c84ab", "#bed9e2", "#445c76", "#193f69"],
+		{ angle: 15, softness: 65, spread: 70, curve: 65, seed: 13 },
+	),
+	preset(
+		"Apricot air",
+		"Flow mesh",
+		"mesh",
+		["#bcb4c6", "#f4c6a5", "#e9dce1", "#c8b6d0", "#f7e9d8", "#dda8a6"],
+		{ softness: 63, spread: 66, curve: 58, seed: 4 },
+	),
+	preset(
+		"Mineral",
+		"Flow mesh",
+		"mesh",
+		["#172b30", "#5a8282", "#b2c9bd", "#dbe7cc", "#688e78", "#244949"],
+		{ softness: 62, spread: 68, curve: 75, seed: 12 },
+	),
+	preset(
+		"Petal study",
+		"Flow mesh",
+		"mesh",
+		["#49324e", "#a47c9e", "#dec4d5", "#f5e6e5", "#b6a0bd", "#766280"],
+		{ softness: 69, spread: 55, curve: 48, seed: 8 },
+	),
+	preset(
+		"Warm porcelain",
+		"Flow mesh",
+		"mesh",
+		["#b5a99b", "#e3d5bc", "#f3e9dc", "#d8d0c3", "#b8c0bb", "#eeccac"],
+		{ softness: 75, spread: 64, curve: 37, seed: 2 },
+	),
+	preset("Polar drift", "Aurora", "aurora", jade, {
+		angle: -17,
+		softness: 75,
+		spread: 70,
+		curve: 54,
+		detail: 27,
+		seed: 6,
+	}),
+	preset("Violet current", "Aurora", "aurora", lilac, {
+		angle: 23,
+		softness: 69,
+		spread: 75,
+		curve: 57,
+		detail: 25,
+		seed: 8,
+	}),
+	preset("Blue atmosphere", "Aurora", "aurora", cobalt, {
+		angle: 15,
+		spread: 78,
+		softness: 75,
+		curve: 65,
+		detail: 20,
+		seed: 10,
+	}),
+	preset("Blush tide", "Aurora", "aurora", rose, {
+		angle: -14,
+		spread: 78,
+		softness: 85,
+		curve: 60,
+		detail: 21,
+		seed: 15,
+	}),
+	preset("Solar atmosphere", "Aurora", "aurora", amber, {
+		angle: 34,
+		spread: 68,
+		softness: 78,
+		curve: 45,
+		detail: 22,
+		seed: 13,
+	}),
+	preset("Pearl eclipse", "Halos", "halo", pearl, {
+		angle: -25,
+		spread: 54,
+		softness: 52,
+		curve: 32,
+		seed: 19,
+	}),
+	preset("Copper orbit", "Halos", "halo", amber, {
+		angle: 27,
+		spread: 50,
+		softness: 43,
+		curve: 51,
+		seed: 22,
+	}),
+	preset("Lunar blue", "Halos", "halo", cobalt, {
+		angle: -30,
+		spread: 54,
+		softness: 48,
+		curve: 32,
+		seed: 13,
+	}),
+	preset("Opaline", "Halos", "halo", lilac, {
+		angle: 37,
+		spread: 43,
+		softness: 74,
+		curve: 52,
+		seed: 4,
+	}),
+	preset("Blue horizon", "Edge light", "edge", cobalt, {
+		angle: 0,
+		spread: 45,
+		softness: 56,
+		curve: 17,
+		y: 50,
+	}),
+	preset("Last light", "Edge light", "edge", amber, {
+		angle: -17,
+		spread: 48,
+		softness: 59,
+		curve: 29,
+		seed: 14,
+	}),
+	preset("Sea glass", "Edge light", "edge", jade, {
+		angle: 15,
+		spread: 52,
+		softness: 66,
+		curve: 37,
+		seed: 8,
+	}),
+	preset("Morning rose", "Edge light", "edge", rose, {
+		angle: -25,
+		spread: 56,
+		softness: 76,
+		curve: 24,
+		seed: 5,
+	}),
+	preset("Moonrise", "Edge light", "edge", lilac, {
+		angle: 10,
+		spread: 38,
+		softness: 62,
+		curve: 15,
+		seed: 17,
+	}),
+	preset("Pearl folds", "Silk", "silk", pearl, {
+		angle: 34,
+		softness: 70,
+		spread: 45,
+		curve: 73,
+		detail: 35,
+		seed: 12,
+	}),
+	preset("Satin blue", "Silk", "silk", cobalt, {
+		angle: -31,
+		softness: 54,
+		spread: 28,
+		curve: 81,
+		detail: 32,
+		seed: 21,
+	}),
+	preset("Rose organza", "Silk", "silk", rose, {
+		angle: 38,
+		softness: 77,
+		spread: 36,
+		curve: 70,
+		detail: 26,
+		seed: 7,
+	}),
+	preset("Champagne", "Silk", "silk", amber, {
+		angle: -20,
+		softness: 74,
+		spread: 27,
+		curve: 65,
+		detail: 18,
+		seed: 4,
+	}),
+	preset("Mauve drape", "Silk", "silk", lilac, {
+		angle: 42,
+		softness: 71,
+		spread: 33,
+		curve: 66,
+		detail: 24,
+		seed: 19,
+	}),
+];
+export const CATEGORIES = [...new Set(PRESETS.map((p) => p.category))];
+export const DEFAULT_DOCUMENT = PRESETS[0].document;
+export const FIELD_PALETTES = [cobalt, amber, rose, jade, lilac, pearl];
