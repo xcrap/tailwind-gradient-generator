@@ -26,6 +26,7 @@ import {
 	DEFAULT_DOCUMENT,
 	type GradientDocument,
 	type GradientPreset,
+	isStaticFieldMode,
 	type LayerType,
 	PRESETS,
 	randomizeDocument,
@@ -449,7 +450,7 @@ export function Studio() {
 			<header className="gp-toolbar">
 				<div className="gp-brand gp-float">
 					<span className="gp-brand__mark" aria-hidden="true" />
-					<h1 className="gp-brand__name">Gradient Paradise</h1>
+					<h1 className="gp-brand__name">Gradient Generator</h1>
 				</div>
 
 				<div className="gp-toolbar__tools">
@@ -572,7 +573,7 @@ export function Studio() {
 			</aside>
 
 			<div className="gp-dock gp-float">
-				{field && (
+				{field && !isStaticFieldMode(field.mode) && (
 					<IconButton
 						label={playing ? "Pause motion" : "Play motion"}
 						aria-pressed={playing}

@@ -2,6 +2,8 @@ import {
 	ASPECT_RATIOS,
 	BLEND_MODES,
 	FIELD_MODES,
+	FIELD_VARIANTS,
+	type FieldVariant,
 	type GradientDocument,
 	type GradientField,
 	type GradientLayer,
@@ -109,6 +111,11 @@ export function validateDocument(value: unknown): GradientDocument | null {
 }
 
 export function validateField(value: Record<string, unknown>): GradientField {
+	const mode = FIELD_MODES.includes(value.mode as GradientField["mode"])
+		? (value.mode as GradientField["mode"])
+		: "beam";
+	const variants: readonly string[] =
+		FIELD_VARIANTS[mode as keyof typeof FIELD_VARIANTS] ?? [];
 	const fallback = [
 		"#070b17",
 		"#101f40",
@@ -118,9 +125,10 @@ export function validateField(value: Record<string, unknown>): GradientField {
 		"#f1f8fb",
 	];
 	return {
-		mode: FIELD_MODES.includes(value.mode as GradientField["mode"])
-			? (value.mode as GradientField["mode"])
-			: "beam",
+		mode,
+		...(variants.includes(value.variant as string)
+			? { variant: value.variant as FieldVariant }
+			: {}),
 		palette: fallback.map((hex, index) =>
 			color(
 				Array.isArray(value.palette) ? value.palette[index] : undefined,

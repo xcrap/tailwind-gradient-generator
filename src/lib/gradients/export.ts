@@ -7,7 +7,12 @@ import {
 } from "./field";
 import { validateDocument } from "./model";
 import { getDimensions, renderSVG, svgDataUrl } from "./render";
-import type { CodeFormat, ExportFormat, GradientDocument } from "./types";
+import {
+	type CodeFormat,
+	type ExportFormat,
+	type GradientDocument,
+	isStaticFieldMode,
+} from "./types";
 
 const escapeHTML = (text: string) =>
 	text.replace(
@@ -29,11 +34,11 @@ export function exportCode(
 	if (format === "svg") return renderSVG(doc);
 	const url = svgDataUrl(doc).replace(/'/g, "%27");
 	const ratio = doc.aspectRatio.replace(":", " / ");
-	const css = `/* Gradient Paradise — SVG-powered CSS preserves every layer and effect. */\n.gradient-paradise {\n  background-color: ${doc.background};\n  background-image: url("${url}");\n  background-size: 100% 100%;\n  background-repeat: no-repeat;\n  aspect-ratio: ${ratio};\n  width: 100%;\n  overflow: hidden;\n}`;
+	const css = `/* Gradient Generator — SVG-powered CSS preserves every layer and effect. */\n.gradient-generator {\n  background-color: ${doc.background};\n  background-image: url("${url}");\n  background-size: 100% 100%;\n  background-repeat: no-repeat;\n  aspect-ratio: ${ratio};\n  width: 100%;\n  overflow: hidden;\n}`;
 	if (format === "css") return css;
 	if (format === "tailwind")
 		return `<!-- Tailwind CSS v4. The inline SVG background preserves all layers and effects. -->\n<div class="relative w-full overflow-hidden bg-no-repeat bg-[length:100%_100%]"\n  style="aspect-ratio: ${ratio}; background-color: ${doc.background}; background-image: url('${url}');">\n  <!-- Your content -->\n</div>`;
-	return `<!doctype html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n  <title>${escapeHTML(doc.name)}</title>\n  <style>\n    body { margin: 0; background: ${doc.background}; }\n    ${css}\n  </style>\n</head>\n<body>\n  <div class="gradient-paradise"></div>\n</body>\n</html>`;
+	return `<!doctype html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n  <title>${escapeHTML(doc.name)}</title>\n  <style>\n    body { margin: 0; background: ${doc.background}; }\n    ${css}\n  </style>\n</head>\n<body>\n  <div class="gradient-generator"></div>\n</body>\n</html>`;
 }
 
 async function pngBlob(doc: GradientDocument, width: number): Promise<Blob> {
@@ -158,18 +163,23 @@ const createProgram=${createFieldProgram.toString()};
 const vertex=${JSON.stringify(FIELD_VERTEX)};
 const fragment=${JSON.stringify(FIELD_FRAGMENT)};
 const scene=${config};
+const animated=${!!doc.field && !isStaticFieldMode(doc.field.mode) && doc.field.speed > 0};
 const canvas=document.getElementById('gradient');
 try{
  const renderer=createProgram(canvas,vertex,fragment);
  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
- let last=0,elapsed=0;
+ let last=0,elapsed=0,frame=0;
  function draw(now){
-  if(last&&!document.hidden&&!reduced.matches)elapsed+=Math.min((now-last)/1000,.1);last=now;
+  if(last&&animated&&!document.hidden&&!reduced.matches)elapsed+=Math.min((now-last)/1000,.1);last=now;
   const dpr=Math.min(devicePixelRatio||1,2);
   renderer.render(scene,scene.field.phase+elapsed*scene.field.speed/100*.65,Math.round(canvas.clientWidth*dpr),Math.round(canvas.clientHeight*dpr));
-  requestAnimationFrame(draw);
+  if(animated&&!reduced.matches&&!document.hidden)frame=requestAnimationFrame(draw);
  }
- requestAnimationFrame(draw);
+ function refresh(){cancelAnimationFrame(frame);last=0;frame=requestAnimationFrame(draw);}
+ addEventListener('resize',refresh);
+ reduced.addEventListener('change',refresh);
+ document.addEventListener('visibilitychange',refresh);
+ refresh();
 }catch(error){canvas.outerHTML='<p>This background requires WebGL graphics acceleration.</p>';}
 </script></body></html>`;
 	}
@@ -178,6 +188,6 @@ try{
 	if (format === "svg")
 		return `<svg xmlns="http://www.w3.org/2000/svg" width="${size.width}" height="${size.height}" viewBox="0 0 ${size.width} ${size.height}"><title>${escapeHTML(doc.name)}</title><desc>Still frame from a procedural gradient. The artwork is an embedded PNG image.</desc><image width="100%" height="100%" href="${url}"/></svg>`;
 	if (format === "tailwind")
-		return `<!-- Tailwind CSS v4. Still frame from Gradient Paradise. Use HTML export for a live animated canvas. -->\n<div class="relative w-full bg-cover bg-center" style="aspect-ratio:${ratio};background-image:url('${url}')">\n  <!-- Your content -->\n</div>`;
-	return `/* Gradient Paradise: a captured still frame. Use HTML export for animation. */\n.gradient-paradise {\n  width: 100%;\n  aspect-ratio: ${ratio};\n  background: ${doc.background} url("${url}") center / cover no-repeat;\n}`;
+		return `<!-- Tailwind CSS v4. Still frame from Gradient Generator. Use HTML export for a live animated canvas. -->\n<div class="relative w-full bg-cover bg-center" style="aspect-ratio:${ratio};background-image:url('${url}')">\n  <!-- Your content -->\n</div>`;
+	return `/* Gradient Generator: a captured still frame. Use HTML export for animation. */\n.gradient-generator {\n  width: 100%;\n  aspect-ratio: ${ratio};\n  background: ${doc.background} url("${url}") center / cover no-repeat;\n}`;
 }

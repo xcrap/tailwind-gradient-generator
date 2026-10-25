@@ -8,7 +8,9 @@ import {
 	exportCode,
 	FIELD_FRAGMENT,
 	FIELD_MODES,
+	FIELD_VARIANTS,
 	getDimensions,
+	isStaticFieldMode,
 	PRESETS,
 	randomizeDocument,
 	renderSVG,
@@ -182,4 +184,52 @@ test("animated HTML contains the shared shader and escapes project text", () => 
 	assert.match(html, /requestAnimationFrame/);
 	assert.doesNotMatch(html, /<script>alert/);
 	assert.match(html, /\\u003c/);
+});
+
+test("style variants survive JSON and reject variants belonging to other modes", () => {
+	for (const [mode, variants] of Object.entries(FIELD_VARIANTS)) {
+		const preset = PRESETS.find((item) => item.document.field?.mode === mode);
+		assert.ok(preset);
+		for (const variant of variants) {
+			const doc = cloneDocument(preset.document);
+			assert.ok(doc.field);
+			doc.field.variant = variant;
+			assert.deepEqual(
+				validateDocument(JSON.parse(exportCode(doc, "json"))),
+				doc,
+			);
+		}
+		const invalid = {
+			...preset.document,
+			field: {
+				...preset.document.field,
+				variant: mode === "still" ? "waves" : "radial",
+			},
+		};
+		assert.equal(validateDocument(invalid)?.field?.variant, undefined);
+	}
+	// Existing mesh drafts without a style remain byte-for-byte compatible.
+	const mesh = PRESETS.find((item) => item.document.field?.mode === "mesh");
+	assert.ok(mesh);
+	assert.deepEqual(validateDocument(mesh.document), mesh.document);
+});
+
+test("standalone HTML keeps static styles still, including after a mode switch with nonzero speed", () => {
+	for (const mode of FIELD_MODES) {
+		const doc = cloneDocument(DEFAULT_DOCUMENT);
+		assert.ok(doc.field);
+		doc.field.mode = mode;
+		doc.field.speed = 67;
+		const html = exportCode(doc, "html");
+		assert.ok(
+			html.includes(`const animated=${!isStaticFieldMode(mode)};`),
+			mode,
+		);
+		assert.ok(html.includes(JSON.stringify(FIELD_FRAGMENT)), mode);
+		assert.deepEqual(JSON.parse(exportCode(doc, "json")).field.mode, mode);
+	}
+	const paused = cloneDocument(DEFAULT_DOCUMENT);
+	assert.ok(paused.field);
+	paused.field.speed = 0;
+	assert.match(exportCode(paused, "html"), /const animated=false;/);
 });

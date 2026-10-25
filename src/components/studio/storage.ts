@@ -1,3 +1,4 @@
+// Historical keys intentionally retained to preserve existing drafts and favorites.
 // v1 drafts (layered scenes) stay untouched under their old key.
 const DRAFT_KEY = "gradient-paradise:draft:v2";
 const FAVORITES_KEY = "gradient-paradise:favorites:v1";

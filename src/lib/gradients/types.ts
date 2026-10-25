@@ -32,10 +32,25 @@ export const FIELD_MODES = [
 	"halo",
 	"edge",
 	"silk",
+	"flow",
+	"still",
+	"retro",
+	"pattern",
 ] as const;
 export type FieldMode = (typeof FIELD_MODES)[number];
+export const FIELD_VARIANTS = {
+	still: ["linear", "radial", "conic"],
+	retro: ["waves", "arches", "sunburst"],
+	pattern: ["checker", "dots", "stripes"],
+} as const;
+export type FieldVariant =
+	(typeof FIELD_VARIANTS)[keyof typeof FIELD_VARIANTS][number];
+export function isStaticFieldMode(mode: FieldMode): boolean {
+	return mode === "still" || mode === "retro" || mode === "pattern";
+}
 export interface GradientField {
 	mode: FieldMode;
+	variant?: FieldVariant;
 	palette: string[];
 	angle: number;
 	x: number;

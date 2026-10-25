@@ -11,6 +11,7 @@ import {
 	type FieldRenderer,
 	type GradientDocument,
 	type GradientField,
+	isStaticFieldMode,
 	svgDataUrl,
 } from "@/lib/gradients";
 import type { TextInk } from "./Canvas";
@@ -44,6 +45,8 @@ export function FieldCanvas({
 	const [size, setSize] = useState({ width: 1, height: 1 });
 	const [drag, setDrag] = useState<"move" | "rotate" | null>(null);
 	const field = doc.field;
+	const animating =
+		playing && !!field && !isStaticFieldMode(field.mode) && field.speed > 0;
 	useEffect(() => {
 		const canvas = canvasRef.current;
 		if (!canvas) return;
@@ -90,20 +93,20 @@ export function FieldCanvas({
 			elapsed = 0,
 			drawn = false;
 		const draw = (now: number) => {
-			if (last && playing && !document.hidden)
+			if (last && animating && !document.hidden)
 				elapsed += Math.min((now - last) / 1000, 0.1);
 			last = now;
 			const phase = field.phase + elapsed * (field.speed / 100) * 0.65;
-			if (!drawn || (playing && !document.hidden)) {
+			if (!drawn || (animating && !document.hidden)) {
 				renderer.current?.render(doc, phase, size.width, size.height);
 				drawn = true;
 			}
 			timeCallback.current?.(phase);
-			if (playing) raf = requestAnimationFrame(draw);
+			if (animating) raf = requestAnimationFrame(draw);
 		};
 		raf = requestAnimationFrame(draw);
 		return () => cancelAnimationFrame(raf);
-	}, [doc, field, playing, size, error]);
+	}, [doc, field, animating, size, error]);
 	if (!field) return null;
 	const start = (
 		event: PointerEvent<HTMLButtonElement>,
@@ -175,7 +178,7 @@ export function FieldCanvas({
 				ref={canvasRef}
 				className="gp-field-art"
 				role="img"
-				aria-label={`${doc.name}, ${playing ? "moving" : "still"} gradient artwork`}
+				aria-label={`${doc.name}, ${animating ? "moving" : "still"} gradient artwork`}
 			>
 				A softly rendered gradient. Use the inspector to adjust colors and
 				shape.

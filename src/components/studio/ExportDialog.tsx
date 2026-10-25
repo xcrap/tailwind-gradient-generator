@@ -8,6 +8,7 @@ import {
 	exportDownload,
 	type GradientDocument,
 	getDimensions,
+	isStaticFieldMode,
 	previewDataUrl,
 } from "@/lib/gradients";
 
@@ -16,7 +17,7 @@ const FIELD_HINTS: Record<ExportFormat, string> = {
 	css: "A still of the current frame as an embedded PNG background.",
 	tailwind:
 		"Tailwind v4 markup with the current frame as an inline PNG background.",
-	html: "A self-contained page that plays the animated field with WebGL.",
+	html: "A self-contained WebGL page with the same artwork and motion settings.",
 	svg: "An SVG wrapping a high-resolution still of the current frame (raster, not editable vectors).",
 	json: "Every field setting, to restore or share this exact look.",
 	png: "A full-resolution snapshot of the frozen frame.",
@@ -188,7 +189,9 @@ export function ExportDialog({ open, doc, onClose }: ExportDialogProps) {
 							</h2>
 							<p className="gp-dialog__lede">
 								{doc.field
-									? "Motion is paused on this frame for still formats. HTML keeps it moving."
+									? isStaticFieldMode(doc.field.mode)
+										? "A still composition. Every format preserves the colours and pattern."
+										: "Motion is paused on this frame for still formats. HTML keeps it moving."
 									: "SVG-powered backgrounds preserve every layer and effect."}
 							</p>
 						</div>

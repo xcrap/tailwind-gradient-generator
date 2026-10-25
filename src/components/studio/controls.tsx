@@ -49,6 +49,7 @@ export function RangeField({
 				max={max}
 				step={step}
 				value={value}
+				aria-valuetext={`${display}${unit}`}
 				style={{ "--progress": `${progress}%` } as CSSProperties}
 				onChange={(event) => onChange(Number(event.target.value), true)}
 				onPointerUp={onCommit}
